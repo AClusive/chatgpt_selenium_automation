@@ -80,15 +80,20 @@ class ChatGPTAutomation:
         self.check_response_ended()
 
     def check_response_ended(self):
-        """ Checks if ChatGPT response ended """
         start_time = time.time()
-        while len(self.driver.find_elements(by=By.CSS_SELECTOR, value='div.text-base')[-1].find_elements(
-                by=By.CSS_SELECTOR, value='button.text-token-text-tertiary')) < 1:
-            time.sleep(0.5)
-            # Exit the while loop after 60 seconds anyway
+        while True:
+            try:
+                last_element = self.driver.find_elements(By.CSS_SELECTOR, 'div.text-base')[-1]
+                response_buttons = last_element.find_elements(By.CSS_SELECTOR, 'button.text-token-text-tertiary')
+                if response_buttons:
+                    break
+            except IndexError:
+                # If there's no element, continue waiting
+                pass
+
             if time.time() - start_time > 60:
                 break
-        time.sleep(1)  # the length should be =4, so it's better to wait a moment to be sure it's really finished
+            time.sleep(0.5)
 
     def return_chatgpt_conversation(self):
         """
